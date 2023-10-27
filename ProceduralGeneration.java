@@ -1,4 +1,4 @@
-package terrainGeneration;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,9 +7,7 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 
-import ressurser.baseEntity.tile.Tile;
-import ressurser.main.GamePanel;
-import ressurser.worldGeneration.OpenSimplex2S;
+
 
 import java.awt.Color;
 import java.awt.Point;
@@ -31,23 +29,23 @@ public class ProceduralGeneration {
      int TILESIZE = 32;
      int continentalSeed;
      int peaksSeed;
-    GamePanel panel;
+   
 
 
     // koefficent
-    double heightKoefficent = 0.5;
-    double temperatureKoefficent = 1;
-    double moistKoefficent = 1;
+    double heightKoefficent = 2;
+    double temperatureKoefficent = 2;
+    double moistKoefficent = 2;
 
 
     //frequenzy:
 
-    double standardFrequency = 0.005/24;
+    double standardFrequency = 0.08/24;
     final double RIVERFREQUENZY =  1/24;
-    double moistFrequency = 0.03 /24;
-    double heatFrequency = 0.02/24;
+    double moistFrequency = 0.07 /24;
+    double heatFrequency = 0.0002/24;
     double continentalFreq = 0.001/24;
-    double peaksFreq = 0.01/24;
+    double peaksFreq = 0.08/24;
 
     //rects of biomes
     ArrayList<Biome> biomeRects = new ArrayList<>();
@@ -87,7 +85,8 @@ public class ProceduralGeneration {
         System.out.println(getBiome(100*32,500*32));
 
     }
-
+    /*
+    
     /**
      * method takes in the startvalue of x and Y, as well as chunkSize.
      * 
@@ -95,9 +94,14 @@ public class ProceduralGeneration {
      * @param chunkSize is the size of the chunk, example 16
      * 
      * @return 2D Array of tiles in the correct order.
-     */
-    public Tile [][] getArrayOfTiles(int startXValue,int startYvalue, int chunkSize){
+     *
 
+    
+     
+    
+    
+    public Tile [][] getArrayOfTiles(int startXValue,int startYvalue, int chunkSize){
+        
         Tile [][] tileArray = new Tile [chunkSize][chunkSize];
 
         for (int x = 0;x <chunkSize;x++){
@@ -113,16 +117,15 @@ public class ProceduralGeneration {
 
     }
 
-    /**
-     * @param xValue is the real worldX of the tile.aka 32 instead of 1  - this value can be negative!
-     * uses procedural generation to get the right Tile.. 
-     */
+   
     private void getTile(int xValue,int yValue){
         // .... procedural generation here...
 
         
-            
+      
     }
+    
+      */
 
     /**
      * iterates thought

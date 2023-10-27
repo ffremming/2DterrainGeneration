@@ -1,4 +1,4 @@
-package terrainGeneration;
+
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,7 +39,7 @@ public class TerrainGenerationView {
     double pointerX;
     double pointerY;
 
-    int camSpeed = 20;
+    int camSpeed = 50;
 
     boolean zoom = false;
 

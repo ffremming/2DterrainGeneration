@@ -1,4 +1,4 @@
-package terrainGeneration;
+
 
 import java.awt.Rectangle;
 /**
