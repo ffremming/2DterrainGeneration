@@ -43,7 +43,7 @@ public class ProceduralGeneration {
     double standardFrequency = 0.08/24;
     final double RIVERFREQUENZY =  1/24;
     double moistFrequency = 0.07 /24;
-    double heatFrequency = 0.0002/24;
+    double heatFrequency = 0.00002/24;
     double continentalFreq = 0.001/24;
     double peaksFreq = 0.08/24;
 
@@ -71,6 +71,11 @@ public class ProceduralGeneration {
     double oceanLvl = 0;
     double beachLvl = 0.03;
 
+    //global biomes:
+
+    Biome beach;
+    Biome ocean;
+
 
     public ProceduralGeneration(){
         //Setting a random seed
@@ -85,9 +90,9 @@ public class ProceduralGeneration {
         System.out.println(getBiome(100*32,500*32));
 
     }
-    /*
     
-    /**
+    
+    /* 
      * method takes in the startvalue of x and Y, as well as chunkSize.
      * 
      * @param startXValue is the real worldX of the tile.aka 32 instead of 1
@@ -95,9 +100,6 @@ public class ProceduralGeneration {
      * 
      * @return 2D Array of tiles in the correct order.
      *
-
-    
-     
     
     
     public Tile [][] getArrayOfTiles(int startXValue,int startYvalue, int chunkSize){
@@ -117,15 +119,12 @@ public class ProceduralGeneration {
 
     }
 
-   
+   */
     private void getTile(int xValue,int yValue){
         // .... procedural generation here...
-
-        
-      
     }
     
-      */
+      
 
     /**
      * iterates thought
@@ -166,6 +165,8 @@ public class ProceduralGeneration {
      * 
      * function produces moist and heat noice, and returns the corresponding biome.
      * define frequency and seed inside.
+     * 
+     * can be used to get the right biome for generation
      */
     private Biome getBiome(int worldX,int worldY){
         //producing the moist noicevalue
@@ -174,24 +175,33 @@ public class ProceduralGeneration {
         //producing the heat noicevalue
         double heatValue = getTemperatureValue(worldX,worldY);
         
-
+        double heightValue = getHeightValue(worldX,worldY);
         
-
-        
-        return getBiomeFromList(heatValue,moistValue);
+        return getBiomeFromList(heatValue,moistValue,heightValue);
 
     }
 
     /**
      * searches thorught all biomes and finds out where the point is.
      */
-    private Biome getBiomeFromList(double heat,double moist){
+    private Biome getBiomeFromList(double heat,double moist,double height){
 
         int heat2 = (int)(heat*50);
         int moist2 = (int)(moist*50);
 
         Point p = new Point(heat2,moist2);
         
+        if (height<oceanLvl){
+            //TODO
+            //create a method that distributes ocean biome values...
+            return ocean;
+        }
+
+        else if (height< beachLvl){
+             //TODO
+            //create a method that distributes shore biome values...
+            return beach;
+        }
 
         for (Biome biome:biomeRects){
             if (biome.contains(p)){
@@ -209,15 +219,15 @@ public class ProceduralGeneration {
         
         for (int temperature = -50;temperature<50;temperature ++){
             for (int moist = -50;moist<50;moist ++){
-                 if (getBiomeFromList((double)temperature/50,(double)moist /50) != null){
-                        int rgb = colorMap.get(getBiomeFromList((double)temperature/50,(double)moist /50));
+                 if (getBiomeFromList((double)temperature/50,(double)moist /50,1) != null){
+                        int rgb = colorMap.get(getBiomeFromList((double)temperature/50,(double)moist /50,1));
                         image.setRGB(temperature +50, moist +50, rgb);
                     
             }
         }
     }
      try {
-        ImageIO.write(image, "png", new File("ressurser/worldGeneration/biomes.png"));
+        ImageIO.write(image, "png", new File("biomes.png"));
     } catch (IOException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -227,16 +237,20 @@ public class ProceduralGeneration {
 
 
     private void setupBiomes(){
-    Biome snowyTundra = new Biome(-51,-51,-25,0,"Snowy Tundra");
-    Biome plains = new Biome(-25,-51,20,0,"plains");
-    Biome desert = new Biome(20,-51,51,-10,"desert");
-    Biome snowyTaiga = new Biome(-51,0,-25,51,"snowy taiga");
-    Biome seasonalForest = new Biome(-25,0,0,51,"seasonal forest");
-    Biome savanna = new Biome(0,-10,51,0,"savanna");
-    Biome forest = new Biome(0,0,51,25,"forest");
-    Biome swamp = new Biome(0,25,25,51,"swamp");
-    Biome rainForest = new Biome(20,25,51,51,"rain forest");
+    Biome snowyTundra = new Biome(-51,-51,-25,0,"Snowy Tundra",ice);
+    Biome plains = new Biome(-25,-51,20,0,"plains",green);
+    Biome desert = new Biome(20,-51,51,-10,"desert",sand);
+    Biome snowyTaiga = new Biome(-51,0,-25,51,"snowy taiga",ice);
+    Biome seasonalForest = new Biome(-25,0,0,51,"seasonal forest",sForest);
+    Biome savanna = new Biome(0,-10,51,0,"savanna",savannaC);
+    Biome forest = new Biome(0,0,51,25,"forest",darkGreen);
+    Biome swamp = new Biome(0,25,25,51,"swamp",moss);
+    Biome rainForest = new Biome(20,25,51,51,"rain forest",rainFr);
 
+
+
+    ocean = new Biome(-1,oceanLvl,"ocean",water);
+    beach = new Biome(oceanLvl,beachLvl,"beach",sand);
     //others:
     
 
@@ -276,7 +290,7 @@ public class ProceduralGeneration {
 
         try{
             BufferedImage image = getImage(startX,startY,width,height);
-            ImageIO.write(image, "png", new File("ressurser/worldGeneration/noise2.png"));
+            ImageIO.write(image, "png", new File("noise.png"));
         }
             catch (IOException e){
             e.printStackTrace();
@@ -351,8 +365,14 @@ public class ProceduralGeneration {
             }
             return 0;
         }
+    }
 
-       
+
+    /*
+     * gets the name of the biome
+     */
+    private String calculateBiomeString(int worldX,int worldY){
+        return getBiome(worldX,worldY).getType();
     }
 
     private double getMoistValue(int worldX, int worldY){

@@ -276,7 +276,7 @@ public class TerrainGenerationView {
                     JSlider source = (JSlider)e.getSource();
                     int value = (int)source.getValue();
 
-                    double newValue = (double) value / (max - min)/100;
+                    double newValue = (double) value / (max - min)/1000;
                     generationModel.setTempFrequenzy(newValue);
                     ip.repaint();
                     ip.requestFocus();
