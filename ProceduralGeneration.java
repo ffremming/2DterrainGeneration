@@ -1,20 +1,16 @@
-
+package ressurser.chunkSystem.terrainGeneration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Random;
-
 import javax.imageio.ImageIO;
 
 
 
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
 public class ProceduralGeneration {
@@ -29,27 +25,33 @@ public class ProceduralGeneration {
      int TILESIZE = 32;
      int continentalSeed;
      int peaksSeed;
+     int vegetationSeed1;
+     int vegetationSeed2;
+     int vegetationSeed3;
+
    
 
 
     // koefficent
-    double heightKoefficent = 2;
-    double temperatureKoefficent = 2;
+    double heightKoefficent = 1.5;
+    double temperatureKoefficent = 0.2;
     double moistKoefficent = 2;
 
 
     //frequenzy:
 
-    double standardFrequency = 0.08/24;
-    final double RIVERFREQUENZY =  1/24;
-    double moistFrequency = 0.07 /24;
-    double heatFrequency = 0.00002/24;
-    double continentalFreq = 0.001/24;
-    double peaksFreq = 0.08/24;
+    double standardFrequency = 0.008/24;
+    final double RIVERFREQUENZY =  0.03/24;
+    double moistFrequency = 0.05 /24;
+    double heatFrequency = 0.004/24;
+    double continentalFreq = 0.0008/24;
+    double peaksFreq = 0.4/24;
 
     //rects of biomes
     ArrayList<Biome> biomeRects = new ArrayList<>();
     HashMap <Biome,Integer> colorMap = new HashMap<>();
+
+    ArrayList<Biome> allBiomes = new ArrayList<>();
 
     //boolean modes
     boolean hightColor = false;
@@ -66,15 +68,20 @@ public class ProceduralGeneration {
 	private int sForest = 0x629632;
 	private int rainFr = 0x78AB46;
 	private int black =  0x000000;
+    private int snowy =  0xffffff;
 
     //lvls
     double oceanLvl = 0;
-    double beachLvl = 0.03;
+    double beachLvl = 0.04;
+    double shoreLvl = 0.07;
+    double mountainLvl = 0.97;
 
     //global biomes:
 
     Biome beach;
     Biome ocean;
+    Biome mountainn;
+    Biome wetBeach;
 
 
     public ProceduralGeneration(){
@@ -87,45 +94,12 @@ public class ProceduralGeneration {
 
         //setup
         setupBiomes();
-        System.out.println(getBiome(100*32,500*32));
-
-    }
-    
-    
-    /* 
-     * method takes in the startvalue of x and Y, as well as chunkSize.
-     * 
-     * @param startXValue is the real worldX of the tile.aka 32 instead of 1
-     * @param chunkSize is the size of the chunk, example 16
-     * 
-     * @return 2D Array of tiles in the correct order.
-     *
-    
-    
-    public Tile [][] getArrayOfTiles(int startXValue,int startYvalue, int chunkSize){
         
-        Tile [][] tileArray = new Tile [chunkSize][chunkSize];
 
-        for (int x = 0;x <chunkSize;x++){
-            
-            for (int y = 0;y<chunkSize;y++){
-                Tile tile = getTile(startXValue + (x*TILESIZE),startYvalue + (y*TILESIZE));
-
-                //dobbel sjekk 2d ARRAY
-                tileArray[y][x] = tile;
-            }
-        }
-        return tileArray;
-
-    }
-
-   */
-    private void getTile(int xValue,int yValue){
-        // .... procedural generation here...
     }
     
-      
-
+    
+    
     /**
      * iterates thought
      * @param worldX takes in real coord - converts it into tileCoord in function
@@ -154,11 +128,13 @@ public class ProceduralGeneration {
 
         sumValue+= value;
         amount++;
-        //System.out.println(sumValue/amount);
+       
 
         
 		return value;
 	}
+
+
 
     /**
      * @param worldX is real coordinates
@@ -183,8 +159,9 @@ public class ProceduralGeneration {
 
     /**
      * searches thorught all biomes and finds out where the point is.
+     * @throws Exception
      */
-    private Biome getBiomeFromList(double heat,double moist,double height){
+    private Biome getBiomeFromList(double heat,double moist,double height) {
 
         int heat2 = (int)(heat*50);
         int moist2 = (int)(moist*50);
@@ -200,7 +177,11 @@ public class ProceduralGeneration {
         else if (height< beachLvl){
              //TODO
             //create a method that distributes shore biome values...
+            return wetBeach;
+        } else if (height<shoreLvl){
+            
             return beach;
+           
         }
 
         for (Biome biome:biomeRects){
@@ -208,11 +189,16 @@ public class ProceduralGeneration {
                 return biome;
             }
         }
-
-        //System.out.println(heat2+","+moist2);
+       
+        //System.out.println("returning null, heat: "+ heat + ", moist: "+moist+", height: "+height);
+        //TODO something wrong with this function/module
         return null;
+      
+        
     }
-
+    /**
+     * helper function.
+     */
     private void drawBiomes(){
 
         BufferedImage image =  new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);;
@@ -237,20 +223,23 @@ public class ProceduralGeneration {
 
 
     private void setupBiomes(){
-    Biome snowyTundra = new Biome(-51,-51,-25,0,"Snowy Tundra",ice);
-    Biome plains = new Biome(-25,-51,20,0,"plains",green);
-    Biome desert = new Biome(20,-51,51,-10,"desert",sand);
-    Biome snowyTaiga = new Biome(-51,0,-25,51,"snowy taiga",ice);
+    Biome snowyTundra = new Biome(-51,-51,-25,0,"Snowy Tundra",snowy);
+    Biome plains = new Biome(-25,-51,10,0,"grass",green);
+    Biome desert = new Biome(10,-51,51,-10,"desert",sand);
+    Biome snowyTaiga = new Biome(-51,0,-25,51,"snowy taiga",snowy);
     Biome seasonalForest = new Biome(-25,0,0,51,"seasonal forest",sForest);
-    Biome savanna = new Biome(0,-10,51,0,"savanna",savannaC);
-    Biome forest = new Biome(0,0,51,25,"forest",darkGreen);
-    Biome swamp = new Biome(0,25,25,51,"swamp",moss);
+    Biome savanna = new Biome(0,-10,51,10,"savanna",savannaC);
+    Biome forest = new Biome(0,10,51,25,"forest",darkGreen);
+    Biome swamp = new Biome(0,25,20,51,"plains",moss);
     Biome rainForest = new Biome(20,25,51,51,"rain forest",rainFr);
 
 
 
     ocean = new Biome(-1,oceanLvl,"ocean",water);
     beach = new Biome(oceanLvl,beachLvl,"beach",sand);
+    wetBeach = new Biome(oceanLvl,beachLvl,"wetBeach",sand);
+    mountainn = new Biome(1,0.85,"mountain",mountain);
+   
     //others:
     
 
@@ -316,6 +305,9 @@ public class ProceduralGeneration {
 		return image;
     }
         
+    /**
+     * this can be made way for advanced.
+     */
     private int getColor(int worldX,int worldY){
 
         if (hightColor){
@@ -350,29 +342,96 @@ public class ProceduralGeneration {
     private int calculateBiomeColor(Biome biome,int worldX,int worldY ){
 
         double height = getHeightValue(worldX,worldY);
-        if (height < oceanLvl){
+        double TemperatureValue = getTemperatureValue(worldX,worldY);
+        double continentalness = getNoiseValue(continentalSeed,continentalFreq,worldX,worldY,5);
+        if (height < oceanLvl ){
+            if (TemperatureValue< -0.5){
+                //frozen water
+                if (continentalness>0){
+                    return ice;
+                }
+               
+            }
+
+            //water
             return water;
         
         }else if (height< beachLvl){
+            if (TemperatureValue< -0.5){
+                //snowy shore
+                return snowy;
+            }
+
+            //wet beach OR Frozen beach?
+            return sand;
+
+        }else if (height<shoreLvl){
+
+            if (TemperatureValue< -0.5){
+                //snowy shore
+                return snowy;
+            }
+
+            //normal beach or idk...
             return sand;
         
-        } else{
+        } else if (height<mountainLvl){
             try{
-                int color = colorMap.get(biome);
+                int color = biome.getColor();
+               
                 return color;
+            } catch (NullPointerException e){
+                
+                //System.out.println(height+","+biome+"," + worldX +","+ worldY);
+                return 0;
+            }
+            //return 0;
+        } else {
+            //System.out.println(height+","+biome+"," + worldX +","+ worldY);
+            return mountainn.color;
+        }
+    }
+
+    /** first try to create a function to make tiles.
+     * not needed now.
+     * 
+     */
+    private String calculateBiomeText(Biome biome,int worldX,int worldY ){
+
+        double height = getHeightValue(worldX,worldY);
+        if (height < oceanLvl){
+            return "water";
+        
+            //can check what continental value is - how close to sea.
+        }else if (height< beachLvl){
+            return "beach";
+        
+        } else if (height< mountainLvl){
+            try{
+                
+                return biome.getType();
             } catch (NullPointerException e){
                 System.out.println( "feil: "+","+getTemperatureValue(worldX,worldY));
             }
-            return 0;
-        }
+            return null;
+
+        }else {
+        return mountainn.getType();
+    }
     }
 
 
     /*
      * gets the name of the biome
      */
-    private String calculateBiomeString(int worldX,int worldY){
-        return getBiome(worldX,worldY).getType();
+    public String calculateBiomeString(int worldX,int worldY){
+        try{
+            return getBiome(worldX,worldY).getType();
+        } catch (Exception e){
+            System.out.println("cant get type");
+        }
+        return "null";
+        
     }
 
     private double getMoistValue(int worldX, int worldY){
@@ -380,9 +439,9 @@ public class ProceduralGeneration {
 
         double continentalness = getNoiseValue(continentalSeed,continentalFreq,worldX,worldY,3);
 
-        double alteredMoist = getAlteredValue(moist,1,-continentalness);
+        double alteredMoist = getAlteredValue(moist,0.1,-continentalness);
 
-        return alteredMoist;
+        return moist;
     }
 
 
@@ -394,18 +453,25 @@ public class ProceduralGeneration {
 
         double alteredTemperature = getAlteredValue(temperature,temperatureKoefficent,-height);
         
-
+        /* 
         if (alteredTemperature< -1 ){
             alteredTemperature = -1;
         }
+        if (alteredTemperature<=-0.5){
+            alteredTemperature=   -(Math.pow(alteredTemperature,4));
+        }
+
+
         else if (alteredTemperature > 1){
             alteredTemperature = 1;
         }
-        return alteredTemperature;
+        */
+        return temperature;
     }
 
     private double getAlteredValue(double originalValue,double koefficent,double ChangeValue){
         double alteredValue = originalValue +(koefficent *(ChangeValue));
+        if (alteredValue < -1){alteredValue = -1;} else if (alteredValue>1){alteredValue = 1;}
         return alteredValue;
     }
 
@@ -414,23 +480,27 @@ public class ProceduralGeneration {
      * takes the original height value and adds continentalness*koefficent
      * should only return values between 1 and -1
      */
-    private double getHeightValue(int worldX,int worldY){
+    public double getHeightValue(int worldX,int worldY){
 
+        double alteredHeight;
+        double height = getNoiseValue(seed,standardFrequency,worldX,worldY,6);
 
-        double height = getNoiseValue(seed,standardFrequency,worldX,worldY,4);
-
-        double continentalness = getNoiseValue(continentalSeed,continentalFreq,worldX,worldY,3);
+        double continentalness = getNoiseValue(continentalSeed,continentalFreq,worldX,worldY,6);
         
-        double peakNoice = getNoiseValue(peaksSeed,peaksFreq,worldX,worldY,3);
+        double peakNoice = getNoiseValue(peaksSeed,peaksFreq,worldX,worldY,6);
         
         //not always a positive number, only takes the peaks.
         double peakValue = Math.pow(peakNoice,2)/3;
 
+        double riverValue = getNoiseValue(10000,RIVERFREQUENZY,worldX,worldY,8);
 
-        double alteredHeight = getAlteredValue(height,heightKoefficent,continentalness) + peakValue;
+        
+        alteredHeight = height*continentalness;
+        alteredHeight = getAlteredValue(height,heightKoefficent,continentalness) + peakValue;
 
+        
         //testing:
-        //System.out.println(height +",altered:"+alteredHeight + " -- "+(1+heightKoefficent)*continentalness + ","+continentalness);
+       
 
         //we need continentalness, erosion and peeks
 
@@ -442,10 +512,33 @@ public class ProceduralGeneration {
         }
 
         
-
+        
         return alteredHeight;
 
 
+    }
+
+    public double getHeightValue2(int x, int y) {
+        // Generate noise values for continentalness, peaks, and standard height
+       
+        double height = getNoiseValue(seed,standardFrequency,x,y,6);
+
+        double continentalness = getNoiseValue(continentalSeed,continentalFreq,x,y,6);
+        
+        double peakNoice = getNoiseValue(peaksSeed,peaksFreq,x,y,6);
+        
+        // Apply weights to the noise values
+        float continentalWeight = 0.3f;
+        float peaksWeight = 0.5f;
+        float heightWeight = 0.2f;
+
+        // Combine noise values using weighted sum
+        double finalHeight = (continentalness * continentalWeight) + (peakNoice * peaksWeight) + (height * heightWeight);
+
+        // Normalize the final height value to be within the range [-1, 1]
+        finalHeight = Math.max(-1, Math.min(1, finalHeight));
+
+        return finalHeight;
     }
 
     private int getRandomSeed(){
@@ -465,12 +558,14 @@ public class ProceduralGeneration {
         moistSeed = getRandomSeed();
         continentalSeed = getRandomSeed();
         peaksSeed = getRandomSeed();
+        vegetationSeed1 = getRandomSeed();
+        vegetationSeed2 = getRandomSeed();
+        vegetationSeed3 = getRandomSeed();
     }
 
     public static void main(String []args){
         ProceduralGeneration pg = new ProceduralGeneration();
-        pg.paintMap(0,0,20,20);
-
+        pg.paintMap(-1000,-1000,1000,1000);
         pg.drawBiomes();
     }
 
@@ -514,12 +609,26 @@ public class ProceduralGeneration {
         moistKoefficent = newKValue;
     }
 
+
+    public double getVegetationVal(int x,int y){
+        return getNoiseValue(vegetationSeed1,0.00001,x,y,5);
+    }
+
+    public double getVegetationMidFreq(int x,int y){
+        return getNoiseValue(vegetationSeed2,0.005,x,y,5);
+    }
+
+    public double getVegetationHighFreq(int x,int y){
+        return getNoiseValue(vegetationSeed3,0.05,x,y,5);
+    }
+
     
 
 
 
-    //needs a forcefucntion to force land and islands - this can be replaced by another function that defines goelogical phenomens.
-
-    //want riverlands as well as normal plains with waterboides, and i want islands as well as non-islands
-
+    
+   
+    
 }
+
+

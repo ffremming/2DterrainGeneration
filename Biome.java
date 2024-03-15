@@ -1,6 +1,8 @@
-
+package ressurser.chunkSystem.terrainGeneration;
 
 import java.awt.Rectangle;
+
+import ressurser.baseEntity.tile.Tile;
 /**
  * temp = x
  * moist = y
@@ -10,6 +12,7 @@ public class Biome extends Rectangle{
     private String type;
     double maxHeight;
     double minHeight;
+
 
     int color;
 
@@ -21,6 +24,7 @@ public class Biome extends Rectangle{
         super(startTemperatur,startMoist,endTemperatur-startTemperatur,endMoist-startMoist);
 
        this.type = type;
+       this.color =  color;
     }
 
     /*
@@ -30,6 +34,7 @@ public class Biome extends Rectangle{
         this.type =  type;
         this.maxHeight = maxHeight;
         this.minHeight = minHeight;
+        this.color =  color;
     }
 
     
@@ -46,6 +51,10 @@ public class Biome extends Rectangle{
     public String getType(){
         return type;
     }
+
+
+    
+
 
     
 
